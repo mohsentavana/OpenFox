@@ -1,0 +1,21 @@
+[package]
+name = "openfox-net"
+description = "HTTP/1.1 + HTTP/2 client over rustls with DNS caching and a first-party cookie jar"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+tokio = { workspace = true }
+thiserror = { workspace = true }
+url = { workspace = true }
+bytes = "1"
+http = "1"
+httparse = "1"
+h2 = "0.4"
+rustls = { version = "0.23", default-features = false, features = ["ring", "logging", "std", "tls12"] }
+tokio-rustls = { version = "0.26", default-features = false, features = ["ring", "logging", "tls12"] }
+webpki-roots = "0.26"
+hickory-resolver = { version = "0.24", features = ["tokio-runtime"] }
+psl = "2"
+sha1 = "0.10"

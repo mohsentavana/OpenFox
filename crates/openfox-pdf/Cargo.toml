@@ -1,0 +1,10 @@
+[package]
+name = "openfox-pdf"
+description = "The PDF viewer: an in-house object model — xref, objects, content streams — feeding the same display list the HTML engine paints"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+thiserror = { workspace = true }
+serde = { workspace = true }

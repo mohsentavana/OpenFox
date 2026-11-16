@@ -1,0 +1,97 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/openfox",
+    "crates/openfox-core",
+    "crates/openfox-net",
+    "crates/openfox-adblock",
+    "crates/openfox-engine",
+    "crates/openfox-ui",
+    "crates/openfox-platform",
+    "crates/openfox-render",
+    "crates/openfox-mcp",
+    "crates/openfox-devtools",
+    "crates/openfox-storage",
+    "crates/openfox-ext",
+    "crates/openfox-privacy",
+    "crates/openfox-passwords",
+    "crates/openfox-sync",
+    "crates/openfox-reader",
+    "crates/openfox-media",
+    "crates/openfox-pdf",
+    "crates/openfox-download",
+    "crates/openfox-screenshot",
+    "crates/openfox-print",
+    "crates/openfox-rtc",
+    "crates/openfox-updater",
+    "crates/openfox-crash",
+    "crates/openfox-wallet",
+    "crates/openfox-ai",
+    "crates/openfox-relay",
+]
+exclude = ["vendor"]
+
+# Rune is vendored at a pinned rev (branch `dev` is never rewritten upstream), and its
+# patched third-party crates are patched in here because a dependency's `[patch]` never
+# applies to the workspace that depends on it — Rune's own docs require consumers to do this.
+[patch.crates-io]
+wgpu-hal = { path = "vendor/rune/vendor/wgpu-hal" }
+winit = { path = "vendor/rune/vendor/winit" }
+parley_engine = { path = "vendor/rune/vendor/parley_engine" }
+accesskit_windows = { path = "vendor/rune/vendor/accesskit_windows" }
+accesskit_macos = { path = "vendor/rune/vendor/accesskit_macos" }
+
+[workspace.package]
+version = "0.2.0"
+edition = "2021"
+rust-version = "1.79"
+license = "LicenseRef-OpenFox-1.0"
+repository = "https://github.com/mohsentavana/openfox"
+
+[workspace.dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "time", "io-util", "io-std", "sync", "fs"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+tracing = "0.1"
+url = "2"
+bytes = "1"
+
+openfox-core = { path = "crates/openfox-core" }
+openfox-net = { path = "crates/openfox-net" }
+openfox-adblock = { path = "crates/openfox-adblock" }
+openfox-engine = { path = "crates/openfox-engine" }
+openfox-ui = { path = "crates/openfox-ui" }
+openfox-platform = { path = "crates/openfox-platform" }
+openfox-render = { path = "crates/openfox-render" }
+openfox-mcp = { path = "crates/openfox-mcp" }
+openfox-devtools = { path = "crates/openfox-devtools" }
+openfox-storage = { path = "crates/openfox-storage" }
+openfox-ext = { path = "crates/openfox-ext" }
+openfox-privacy = { path = "crates/openfox-privacy" }
+openfox-passwords = { path = "crates/openfox-passwords" }
+openfox-sync = { path = "crates/openfox-sync" }
+openfox-reader = { path = "crates/openfox-reader" }
+openfox-media = { path = "crates/openfox-media" }
+openfox-pdf = { path = "crates/openfox-pdf" }
+openfox-download = { path = "crates/openfox-download" }
+openfox-screenshot = { path = "crates/openfox-screenshot" }
+openfox-print = { path = "crates/openfox-print" }
+openfox-rtc = { path = "crates/openfox-rtc" }
+openfox-updater = { path = "crates/openfox-updater" }
+openfox-crash = { path = "crates/openfox-crash" }
+openfox-wallet = { path = "crates/openfox-wallet" }
+openfox-ai = { path = "crates/openfox-ai" }
+openfox-relay = { path = "crates/openfox-relay" }
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = "symbols"
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3

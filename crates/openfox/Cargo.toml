@@ -1,0 +1,37 @@
+[package]
+name = "openfox"
+description = "OpenFox app shell: CLI, wiring, headless and desktop loops"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "openfox"
+path = "src/main.rs"
+
+build = "build.rs"
+
+[build-dependencies]
+winresource = "0.1"
+
+[dependencies]
+openfox-core = { workspace = true }
+openfox-net = { workspace = true }
+openfox-adblock = { workspace = true }
+openfox-engine = { workspace = true }
+openfox-ui = { workspace = true }
+rune = { path = "../../vendor/rune/crates/rune" }
+openfox-platform = { workspace = true }
+openfox-render = { workspace = true }
+openfox-mcp = { workspace = true }
+openfox-devtools = { workspace = true }
+openfox-storage = { workspace = true }
+openfox-ext = { workspace = true }
+tokio = { workspace = true }
+serde_json = { workspace = true }
+url = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+clap = { version = "4", features = ["derive"] }
+base64 = "0.22"

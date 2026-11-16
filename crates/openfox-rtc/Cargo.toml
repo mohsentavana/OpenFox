@@ -1,0 +1,12 @@
+[package]
+name = "openfox-rtc"
+description = "Realtime: peer sessions, SDP, ICE over tokio UDP, data channels — the media path hands frames to openfox-render"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+thiserror = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+bytes = { workspace = true }

@@ -1,0 +1,10 @@
+[package]
+name = "openfox-screenshot"
+description = "Screenshots: capture from the display list, annotate with the same primitives, share local-first"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+thiserror = { workspace = true }
+serde = { workspace = true }

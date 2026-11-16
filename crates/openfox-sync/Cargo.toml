@@ -1,0 +1,17 @@
+[package]
+name = "openfox-sync"
+description = "End-to-end encrypted sync: sealed envelopes an untrusted server stores, keys that never leave the device"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+thiserror = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+x25519-dalek = { version = "2", features = ["static_secrets"] }
+aes-gcm = "0.10"
+hkdf = "0.12"
+rand = "0.8"
+sha2 = "0.10"

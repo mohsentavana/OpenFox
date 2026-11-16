@@ -1,0 +1,11 @@
+[package]
+name = "openfox-relay"
+description = "Private-window circuits: multi-hop SOCKS5 and HTTP CONNECT tunnels with per-tab isolation, an LRU circuit pool, and rotation policy — tor-style routing over proxies the user picks"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+tokio = { workspace = true }
+thiserror = { workspace = true }
+bytes = { workspace = true }

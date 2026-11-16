@@ -1,0 +1,11 @@
+[package]
+name = "openfox-ui"
+description = "OpenFox chrome on the Rune native UI framework: tab strip, toolbar, shield"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+rune = { path = "../../vendor/rune/crates/rune" }
+openfox-core = { workspace = true }
+tracing = { workspace = true }

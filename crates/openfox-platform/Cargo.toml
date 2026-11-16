@@ -1,0 +1,12 @@
+[package]
+name = "openfox-platform"
+description = "Windows and Android integration: fonts, lifecycle, navigation routing"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+thiserror = { workspace = true }
+
+[target.'cfg(target_os = "android")'.dependencies]
+android-activity = "0.5"

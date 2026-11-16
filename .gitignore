@@ -1,0 +1,28 @@
+# Build output
+/target
+**/target
+
+# Rust tooling
+**/*.rs.bk
+
+# Databases the browser creates at runtime
+*.db
+*.db-wal
+*.db-shm
+
+# Profiles and crash dumps from local runs
+/profile/
+*.dmp
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+.vscode/
+*.swp
+# Distribution archives (GitHub Releases hosts the binaries)
+/dist/
+# Runtime profile created by local runs
+/openfox-data/

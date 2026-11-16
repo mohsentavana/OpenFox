@@ -1,0 +1,68 @@
+# Vendored copy of Rune (https://github.com/mohsentavana/rune), branch `dev`,
+# pinned at rev 1dba3423fd1f1904553422e7814700f817abe8af.
+# Trimmed workspace: the library crates and the opencode theme are vendored;
+# examples, www, site, research and tools are dropped. The patched third-party
+# crates under `vendor/` (wgpu-hal, winit, parley_engine, accesskit_windows,
+# accesskit_macos, tiny-skia-path) stay untouched — OpenFox's root manifest carries
+# the `[patch.crates-io]` entries that point at them, because a dependency's
+# `[patch]` never applies to the workspace that depends on it.
+[workspace]
+resolver = "3"
+members = [
+    "crates/rune",
+    "crates/rune-ref",
+    "crates/rune-motion",
+    "crates/rune-i18n",
+    "crates/rune-staging",
+    "crates/rune-kit",
+    "crates/rune-highlights",
+    "crates/rune-fx",
+    "crates/rune-light",
+    "crates/procwatch",
+    "crates/rune-register",
+    "crates/rune-knobs",
+    "crates/rune-mac",
+    "crates/rune-notify",
+    "crates/rune-mermaid",
+    "crates/rune-perf",
+    "crates/rune-luau",
+    "crates/rune-taffy",
+    "themes/opencode",
+]
+exclude = [
+    "vendor/accesskit_macos",
+    "vendor/accesskit_windows",
+    "vendor/parley_engine",
+    "vendor/tiny-skia-path",
+    "vendor/wgpu-hal",
+    "vendor/winit",
+]
+
+[workspace.package]
+edition = "2024"
+license = "MIT"
+
+# Full debug info for the workspace crates made a single `rune` test build use 18-23 GB of RAM;
+# line tables keep backtraces and file:line in panics at a fraction of that.
+[profile.dev]
+debug = "line-tables-only"
+
+[profile.dev.package."*"]
+debug = false
+
+[workspace.lints.rust]
+unsafe_op_in_unsafe_fn = "deny"
+unused_must_use = "deny"
+unsafe_code = "allow"
+
+[workspace.lints.clippy]
+await_holding_lock = "deny"
+await_holding_refcell_ref = "deny"
+dbg_macro = "deny"
+disallowed_types = "deny"
+expect_used = "warn"
+todo = "warn"
+unwrap_used = "warn"
+undocumented_unsafe_blocks = "warn"
+let_underscore_must_use = "warn"
+disallowed_methods = "warn"

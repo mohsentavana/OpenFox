@@ -1,0 +1,10 @@
+[package]
+name = "openfox-adblock"
+description = "Adblock-style rule parser, network decision engine and cosmetic filters"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+thiserror = { workspace = true }
+url = { workspace = true }

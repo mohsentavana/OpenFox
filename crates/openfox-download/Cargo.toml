@@ -1,0 +1,13 @@
+[package]
+name = "openfox-download"
+description = "Downloads: queue, progress, resume. A download is a small state machine with a file on disk"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+thiserror = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+url = { workspace = true }

@@ -1,0 +1,17 @@
+[package]
+name = "openfox-passwords"
+description = "Passwords sealed at rest with AES-256-GCM under an Argon2id key; breach checks are k-anonymous by SHA-1 range"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+thiserror = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+url = { workspace = true }
+argon2 = "0.5"
+aes-gcm = "0.10"
+sha1 = "0.10"
+rand = "0.8"

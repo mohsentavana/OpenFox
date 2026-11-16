@@ -1,0 +1,13 @@
+[package]
+name = "openfox-privacy"
+description = "The shields: tracker classification, ETP levels, fingerprint farbling, consent auto-reject, bounce tracking, HTTPS upgrades"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+thiserror = { workspace = true }
+serde = { workspace = true }
+url = { workspace = true }
+blake3 = "1"
+psl = "2"

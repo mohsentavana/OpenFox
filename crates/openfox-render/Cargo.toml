@@ -1,0 +1,30 @@
+[package]
+name = "openfox-render"
+description = "wgpu page compositor: display lists in, textures and PNG out"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+thiserror = { workspace = true }
+# The same wgpu 30 and the same feature set as vendor/rune, so the process
+# links exactly one wgpu. Rune enables its native backends per target below;
+# openfox-render mirrors them (the base "metal" feature is inert off Apple).
+wgpu = { version = "30", default-features = false, features = ["std", "parking_lot", "metal", "wgsl"] }
+ab_glyph = "0.2"
+image = { version = "0.25", default-features = false, features = ["png"] }
+openfox-engine = { workspace = true }
+bytemuck = { version = "1", features = ["derive"] }
+
+# Native backends, mirrored from vendor/rune/crates/rune/Cargo.toml so a
+# headless render finds an adapter on every platform the chrome can.
+
+# wgpu's Vulkan backend everywhere but Windows (D3D12 there, below) and Apple (Metal).
+[target.'cfg(all(not(target_vendor = "apple"), not(target_arch = "wasm32"), not(target_os = "windows")))'.dependencies]
+wgpu = { version = "30", default-features = false, features = ["vulkan"] }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+wgpu = { version = "30", default-features = false, features = ["dx12"] }
+
+[target.'cfg(target_vendor = "apple")'.dependencies]
+wgpu = { version = "30", default-features = false, features = ["custom"] }

@@ -1,0 +1,10 @@
+[package]
+name = "openfox-print"
+description = "Print: paged media from the same layout tree, PDF out of the same glyph runs — printing is rendering with page boxes"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+thiserror = { workspace = true }
+serde = { workspace = true }

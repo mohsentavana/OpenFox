@@ -1,0 +1,12 @@
+[package]
+name = "openfox-core"
+description = "Tabs, sessions, settings and the command/event buses of OpenFox"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
