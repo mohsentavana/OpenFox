@@ -22,8 +22,10 @@ pub fn run(backend: BackendHandle) {
     let _ = BACKEND.set(backend);
     RuneApp::new(AppSpec {
         title: "OpenFox",
-        size: (1280.0, 832.0),
-        min_size: Some((900.0, 600.0)),
+        // Fits a 1366x768 laptop with room for the title bar and taskbar;
+        // the chrome is fully flexible below that down to the floor.
+        size: (1080.0, 680.0),
+        min_size: Some((480.0, 360.0)),
         init,
         view,
         scenes: &[],
@@ -60,6 +62,14 @@ fn setup(_state: &mut ChromeState, waker: Waker) {
 /// backend's truth back. Both are cheap — the tab list is a handful of
 /// rows — and neither waits on the network: `navigate` itself runs on
 /// the task thread and wakes us again when the page is in.
+///
+/// The frame thread NEVER blocks on the backend mutex. A navigation can
+/// legitimately hold the backend for the duration of its network budget
+/// (tens of seconds on a slow origin); if `poll` waited on that lock the
+/// window would stop pumping events and the OS would flag the app
+/// "not responding". `try_lock` instead: a busy backend simply skips the
+/// sync this frame, and the task thread's `wake()` schedules the frame
+/// that reads the finished state.
 fn poll(state: &mut ChromeState, _elapsed: f64, _tx: &mut Tx) -> bool {
     let Some(backend) = BACKEND.get() else { return false };
     let mut changed = false;
@@ -70,6 +80,7 @@ fn poll(state: &mut ChromeState, _elapsed: f64, _tx: &mut Tx) -> bool {
         // make the backend's active tab what the user is looking at
         // before the intent runs.
         let active_id = state.active_tab().map(|tab| tab.id);
+        let mut navigates = false;
         let mut targeted: Vec<ChromeIntent> = Vec::with_capacity(intents.len() + 1);
         for intent in intents.drain(..) {
             let needs_target = matches!(
@@ -78,11 +89,22 @@ fn poll(state: &mut ChromeState, _elapsed: f64, _tx: &mut Tx) -> bool {
                     | ChromeIntent::GoForward | ChromeIntent::Reload
             );
             if needs_target {
+                navigates = true;
                 if let Some(id) = active_id {
                     targeted.push(ChromeIntent::SelectTab(id));
                 }
             }
             targeted.push(intent);
+        }
+
+        // Optimistic loading: the load line and the spinner show the
+        // instant the intent is raised; the backend's truth replaces
+        // them when the task thread finishes and wakes us.
+        if navigates {
+            state.loading = true;
+            if let Some(tab) = state.active_tab_mut() {
+                tab.loading = true;
+            }
         }
 
         let backend = backend.clone();
@@ -100,7 +122,11 @@ fn poll(state: &mut ChromeState, _elapsed: f64, _tx: &mut Tx) -> bool {
         });
     }
 
-    if let Ok(mut browser) = backend.lock() {
+    // Never wait on the browser: while a navigation holds the backend —
+    // seconds of budgeted network — the frame loop must keep pumping
+    // input. A busy lock skips the sync; the wake() after the task
+    // brings poll back for the truth.
+    if let Ok(mut browser) = backend.try_lock() {
         changed |= sync_from_backend(state, &mut *browser);
     }
     changed

@@ -11,7 +11,18 @@ use base64::Engine as _;
 use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
-use std::time::Instant;
+use std::time::{Duration, Instant};
+
+/// The whole navigation — document plus every stylesheet — must fit this
+/// budget. A slow origin can cost seconds; a dead one can never cost the
+/// user more than this. The chrome stays responsive the entire time
+/// (the backend lock is only held by the task thread), so this is a
+/// floor under the load, not a freeze.
+const NAVIGATION_BUDGET: Duration = Duration::from_secs(45);
+/// Stylesheets stop being fetched (the rest render unstyled) once the
+/// subresource phase has spent this long or collected this many files.
+const CSS_PHASE_BUDGET: Duration = Duration::from_secs(20);
+const CSS_MAX_FILES: usize = 12;
 
 /// The browser, assembled. One struct, one runtime: the net stack, the
 /// adblock policy engine, the page engine, the compositor, storage,
@@ -129,8 +140,25 @@ impl App {
     pub fn navigate_sync(&mut self, tab: TabId, input: &str) -> Value {
         // The runtime moves out of `self` for the duration: the future
         // borrows `&mut self`, and a borrowed field cannot drive it.
+        // The whole navigation is bounded by NAVIGATION_BUDGET: a hung
+        // origin fails with a page the user can read, never an app that
+        // looks frozen.
         let runtime = self.runtime.take().expect("app runtime");
-        let out = runtime.block_on(async { self.navigate(tab, input).await });
+        let out = runtime.block_on(async {
+            match tokio::time::timeout(NAVIGATION_BUDGET, self.navigate(tab, input)).await {
+                Ok(value) => value,
+                Err(_elapsed) => {
+                    if let Some(t) = self.core.get_mut(tab) {
+                        t.state = LoadState::Failed { code: 0 };
+                    }
+                    json!({
+                        "ok": false,
+                        "url": input,
+                        "error": format!("navigation exceeded its {}s budget", NAVIGATION_BUDGET.as_secs()),
+                    })
+                }
+            }
+        });
         self.runtime = Some(runtime);
         out
     }
@@ -140,6 +168,10 @@ impl App {
         let Ok(parsed) = url::Url::parse(&url) else {
             return json!({ "ok": false, "error": format!("not a URL: {url}") });
         };
+
+        // The tab shows its loading state from the first moment of the
+        // navigation, not only once the document arrives.
+        self.core.get_mut(tab).map(|t| t.state = LoadState::Loading);
 
         // The shield decision happens before any socket opens.
         match self.adblock.check(&parsed, ResourceType::Document, None) {
@@ -170,10 +202,16 @@ impl App {
                 let html = String::from_utf8_lossy(&response.body).into_owned();
 
                 // Subresources go through the same shield: stylesheets are
-                // fetched here so the counters count something real.
+                // fetched here so the counters count something real. The
+                // phase is bounded — a page with fifty stylesheets on a
+                // slow origin renders unstyled before it renders never.
+                let css_deadline = Instant::now() + CSS_PHASE_BUDGET;
                 let mut blocked_here = 0;
                 let mut css_texts: Vec<String> = Vec::new();
                 for href in Page::linked_stylesheets(&html) {
+                    if css_texts.len() >= CSS_MAX_FILES || Instant::now() >= css_deadline {
+                        break;
+                    }
                     let Ok(absolute) = parsed.join(&href) else { continue };
                     match self.adblock.check(&absolute, ResourceType::Stylesheet, parsed.host_str()) {
                         Decision::Blocked { rule, .. } => {
